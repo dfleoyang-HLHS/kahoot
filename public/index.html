@@ -186,6 +186,7 @@
                     <!-- 動態添加排名 -->
                 </div>
                 <button id="host-next-btn" class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="hostNextQuestion()" hidden>➡️ 下一題</button>
+                <p id="host-next-hint" class="host-next-hint" hidden>可提前點擊「下一題」，或等倒數 30 秒結束自動進入下一題</p>
             </div>
         </div>
     </div>
@@ -237,7 +238,7 @@
     </div>
 
     <!-- Socket.IO 和自訂腳本 -->
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="/js/app.js"></script>
 </body>
 </html>

@@ -700,6 +700,13 @@ body {
   font-size: 1.1rem;
 }
 
+.host-next-hint {
+  margin-top: 8px;
+  color: #666;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
 /* ==================== 響應式設計 ==================== */
 
 @media (max-width: 768px) {

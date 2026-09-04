@@ -237,6 +237,7 @@ function displayQuestion(questionData) {
   document.getElementById('answer-progress').hidden = !isHost;
   document.getElementById('answered-count').textContent = '0';
   document.getElementById('host-next-btn').hidden = !isHost;
+  document.getElementById('host-next-hint').hidden = !isHost;
 
   showPage('game-page');
   startTimer(questionData.timeLimit || 30);
@@ -301,10 +302,12 @@ function startTimer(timeLimit) {
       timerElement.classList.remove('warning', 'danger');
     }
 
-    // 時間到自動提交（主持人只是監控畫面，不作答）
+    // 時間到：主持人畫面自動進入下一題；學生端則自動提交（未作答視為 -1）
     if (remaining <= 0) {
       clearInterval(gameTimer);
-      if (!isHost && !gameState.answerSubmitted) {
+      if (isHost) {
+        hostNextQuestion();
+      } else if (!gameState.answerSubmitted) {
         submitAnswer(-1); // -1 代表未作答
       }
     }
