@@ -1,32 +1,136 @@
 {
-  "title": "請在這裡輸入問卷標題",
-  "description": "請在這裡輸入問卷說明（可留空）",
+  "title": "花蓮高中與 NPDL 深度學習測驗",
+  "description": "本測驗旨在了解對於國立花蓮高中基本資料、學校願景，以及 NPDL（深度學習）學生六力（6C）的認識。",
   "questions": [
     {
       "id": "q1",
-      "question": "請在這裡輸入第 1 題的題目文字",
+      "question": "請問國立花蓮高中的地址為何？",
       "options": [
-        "選項 A（請替換成實際內容）",
-        "選項 B（請替換成實際內容）",
-        "選項 C（請替換成實際內容）",
-        "選項 D（請替換成實際內容）"
+        "花蓮縣花蓮市民權路42號",
+        "花蓮縣花蓮市中山路1號",
+        "花蓮縣花蓮市建國路100號",
+        "花蓮縣吉安鄉吉安路20號"
       ],
       "correctAnswer": 0,
       "timeLimit": 30,
-      "category": "請填入分類名稱，例如：第一章"
+      "category": "學校基本資料"
     },
     {
       "id": "q2",
-      "question": "請在這裡輸入第 2 題的題目文字",
+      "question": "下列何者「不是」國立花蓮高中的學校願景？",
       "options": [
-        "選項 A（請替換成實際內容）",
-        "選項 B（請替換成實際內容）",
-        "選項 C（請替換成實際內容）",
-        "選項 D（請替換成實際內容）"
+        "科學思維",
+        "人文關懷",
+        "升學至上",
+        "國際視野"
       ],
       "correctAnswer": 2,
       "timeLimit": 30,
-      "category": "請填入分類名稱，例如：第一章"
+      "category": "學校願景"
+    },
+    {
+      "id": "q3",
+      "question": "學校近年來推動的「NPDL」教育理念，其原文中的「Deep Learning」中文意思為何？",
+      "options": [
+        "表面學習",
+        "填鴨式學習",
+        "深度學習",
+        "菁英學習"
+      ],
+      "correctAnswer": 2,
+      "timeLimit": 30,
+      "category": "NPDL 深度學習"
+    },
+    {
+      "id": "q4",
+      "question": "NPDL(深度學習)在學校的學生六力(6C)可以互相結合，請問下列何者是 6C 之一？",
+      "options": [
+        "機械記憶",
+        "考試技巧",
+        "公民素養",
+        "體能發展"
+      ],
+      "correctAnswer": 2,
+      "timeLimit": 30,
+      "category": "NPDL 深度學習"
+    },
+    {
+      "id": "q5",
+      "question": "在 NPDL (深度學習)所提倡的學生六力(6C)中，哪一項能力強調發揮想像力並產生新的想法？",
+      "options": [
+        "標準化思考",
+        "創意",
+        "模仿複製",
+        "被動接收"
+      ],
+      "correctAnswer": 1,
+      "timeLimit": 30,
+      "category": "NPDL 深度學習"
+    },
+    {
+      "id": "q6",
+      "question": "在 NPDL 深度學習架構中，六力(6C)包含許多重要素養，請問下列何者為其中之一？",
+      "options": [
+        "獨立作業",
+        "沉默順從",
+        "單向指示",
+        "溝通"
+      ],
+      "correctAnswer": 3,
+      "timeLimit": 30,
+      "category": "NPDL 深度學習"
+    },
+    {
+      "id": "q7",
+      "question": "關於 NPDL 的學生六力(6C)，下列哪個能力強調與他人共同合作、完成任務？",
+      "options": [
+        "零和競爭",
+        "閉門造車",
+        "協作",
+        "獨善其身"
+      ],
+      "correctAnswer": 2,
+      "timeLimit": 30,
+      "category": "NPDL 深度學習"
+    },
+    {
+      "id": "q8",
+      "question": "NPDL 深度學習六力(6C)中，何者有助於學生對事物進行深入分析、質疑與反思？",
+      "options": [
+        "批判思考",
+        "權威服從",
+        "盲目相信",
+        "刻板印象"
+      ],
+      "correctAnswer": 0,
+      "timeLimit": 30,
+      "category": "NPDL 深度學習"
+    },
+    {
+      "id": "q9",
+      "question": "NPDL 提倡的學生六力(6C)中，下列何者也是其中一項培養內在價值觀的重要能力？",
+      "options": [
+        "功利主義",
+        "成績至上",
+        "外在表現",
+        "品格"
+      ],
+      "correctAnswer": 3,
+      "timeLimit": 30,
+      "category": "NPDL 深度學習"
+    },
+    {
+      "id": "q10",
+      "question": "NPDL 的實踐對誰有利？",
+      "options": [
+        "學生",
+        "老師",
+        "家長",
+        "所有人"
+      ],
+      "correctAnswer": 3,
+      "timeLimit": 30,
+      "category": "NPDL 深度學習"
     }
   ]
 }
