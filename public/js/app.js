@@ -102,8 +102,10 @@ document.getElementById('join-room-form')?.addEventListener('submit', async (e) 
       // 學生不是主持人，不能上傳問卷/開始遊戲，只能等待
       document.getElementById('upload-quiz-btn').style.display = 'none';
 
-      // 等待主持人開始遊戲
-      alert(`成功加入房間 ${roomId}！\n請等待主持人開始遊戲...`);
+      // 讓學生自己的畫面也顯示剛加入的房間代碼，方便確認/告訴其他同學
+      document.getElementById('room-code-display').textContent = data.roomId;
+
+      alert('成功加入房間！請等待主持人開始遊戲...');
       showPage('room-code-page');
       
       e.target.reset();
