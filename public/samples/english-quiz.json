@@ -1,0 +1,136 @@
+{
+  "title": "English Vocabulary Quiz",
+  "description": "Test your English vocabulary knowledge with 10 questions",
+  "questions": [
+    {
+      "id": "e1",
+      "question": "What is the synonym of 'happy'?",
+      "options": [
+        "Sad",
+        "Joyful",
+        "Angry",
+        "Tired"
+      ],
+      "correctAnswer": 1,
+      "timeLimit": 25,
+      "category": "Vocabulary"
+    },
+    {
+      "id": "e2",
+      "question": "Which word means to make something smaller?",
+      "options": [
+        "Expand",
+        "Reduce",
+        "Increase",
+        "Enlarge"
+      ],
+      "correctAnswer": 1,
+      "timeLimit": 25,
+      "category": "Vocabulary"
+    },
+    {
+      "id": "e3",
+      "question": "What is the opposite of 'weak'?",
+      "options": [
+        "Soft",
+        "Fragile",
+        "Strong",
+        "Delicate"
+      ],
+      "correctAnswer": 2,
+      "timeLimit": 25,
+      "category": "Antonyms"
+    },
+    {
+      "id": "e4",
+      "question": "Which sentence is grammatically correct?",
+      "options": [
+        "She go to school every day.",
+        "She goes to school every day.",
+        "She going to school every day.",
+        "She gone to school every day."
+      ],
+      "correctAnswer": 1,
+      "timeLimit": 30,
+      "category": "Grammar"
+    },
+    {
+      "id": "e5",
+      "question": "What does 'procrastinate' mean?",
+      "options": [
+        "To plan ahead",
+        "To delay or postpone",
+        "To work quickly",
+        "To organize"
+      ],
+      "correctAnswer": 1,
+      "timeLimit": 25,
+      "category": "Vocabulary"
+    },
+    {
+      "id": "e6",
+      "question": "Choose the correct spelling:",
+      "options": [
+        "Occassion",
+        "Ocasion",
+        "Occasion",
+        "Occation"
+      ],
+      "correctAnswer": 2,
+      "timeLimit": 20,
+      "category": "Spelling"
+    },
+    {
+      "id": "e7",
+      "question": "What is a 'metaphor'?",
+      "options": [
+        "A comparison using 'like' or 'as'",
+        "A direct comparison without 'like' or 'as'",
+        "A repeated sound in words",
+        "An exaggeration"
+      ],
+      "correctAnswer": 1,
+      "timeLimit": 25,
+      "category": "Literary Terms"
+    },
+    {
+      "id": "e8",
+      "question": "Which word has the stress on the second syllable?",
+      "options": [
+        "BEautiful",
+        "PROfessional",
+        "proFESSional",
+        "APple"
+      ],
+      "correctAnswer": 2,
+      "timeLimit": 25,
+      "category": "Pronunciation"
+    },
+    {
+      "id": "e9",
+      "question": "Complete the phrase: 'Once in a _____'",
+      "options": [
+        "decade",
+        "blue moon",
+        "lifetime",
+        "generation"
+      ],
+      "correctAnswer": 1,
+      "timeLimit": 20,
+      "category": "Idioms"
+    },
+    {
+      "id": "e10",
+      "question": "What is the plural of 'crisis'?",
+      "options": [
+        "Crises",
+        "Crisises",
+        "Crisis's",
+        "Crisi"
+      ],
+      "correctAnswer": 0,
+      "timeLimit": 25,
+      "category": "Grammar"
+    }
+  ]
+}
