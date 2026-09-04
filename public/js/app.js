@@ -28,6 +28,16 @@ function showPage(pageId) {
   document.getElementById(pageId).classList.add('active');
 }
 
+// 房間代碼固定顯示列：不管切到哪個畫面（測試/上課中）都持續顯示在最上方
+function showGlobalRoomCodeBar(roomId) {
+  document.getElementById('global-room-code-text').textContent = roomId;
+  document.getElementById('global-room-code-bar').hidden = false;
+}
+
+function hideGlobalRoomCodeBar() {
+  document.getElementById('global-room-code-bar').hidden = true;
+}
+
 function showHomePage() {
   showPage('home-page');
   resetGameState();
@@ -70,6 +80,7 @@ document.getElementById('create-room-form')?.addEventListener('submit', async (e
 
       document.getElementById('upload-quiz-btn').style.display = '';
       document.getElementById('room-code-display').textContent = data.roomId;
+      showGlobalRoomCodeBar(data.roomId);
       showPage('room-code-page');
       
       e.target.reset();
@@ -104,6 +115,7 @@ document.getElementById('join-room-form')?.addEventListener('submit', async (e) 
 
       // 讓學生自己的畫面也顯示剛加入的房間代碼，方便確認/告訴其他同學
       document.getElementById('room-code-display').textContent = data.roomId;
+      showGlobalRoomCodeBar(data.roomId);
 
       alert('成功加入房間！請等待主持人開始遊戲...');
       showPage('room-code-page');
@@ -395,6 +407,7 @@ function resetGameState() {
   currentRoomId = null;
   isHost = false;
   clearInterval(gameTimer);
+  hideGlobalRoomCodeBar();
 }
 
 // ==================== Socket.IO 事件監聽 ====================
