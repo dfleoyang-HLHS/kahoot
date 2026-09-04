@@ -165,6 +165,7 @@ io.on('connection', (socket) => {
       options: currentQuestion.options,
       timeLimit: currentQuestion.timeLimit || 30
     });
+    emitAnswerProgress(room);
   });
 
   socket.on('submit-answer', (data) => {
@@ -200,16 +201,17 @@ io.on('connection', (socket) => {
       room.players.map(pId => players.get(pId)).filter(p => p)
     );
     io.to(roomId).emit('leaderboard-data', { leaderboard });
+    emitAnswerProgress(room);
   });
 
+  // 主持人手動控制進入下一題（學生端不會再自動觸發，避免搶答的人幫全班跳題）
   socket.on('next-question', (data) => {
     const { roomId, questionIndex } = data;
     const room = rooms.get(roomId.toUpperCase());
 
     if (!room) return;
 
-    // 多個玩家答完題後都會請求進下一題，只有第一個請求應該生效，
-    // 之後帶著同一題號的重複請求要被忽略，避免連續跳題
+    // 防止同一個請求因網路重試等原因被重複處理而連續跳題
     if (typeof questionIndex === 'number' && questionIndex !== room.currentQuestion) {
       return;
     }
@@ -240,6 +242,7 @@ io.on('connection', (socket) => {
       options: currentQuestion.options,
       timeLimit: currentQuestion.timeLimit || 30
     });
+    emitAnswerProgress(room);
   });
 
   socket.on('disconnect', () => {
@@ -268,6 +271,19 @@ io.on('connection', (socket) => {
 });
 
 // ==================== 工具函數 ====================
+
+// 廣播目前這一題「已作答人數 / 總人數」，讓主持人監控畫面知道還要不要等
+function emitAnswerProgress(room) {
+  const answeredCount = room.players
+    .map(pId => players.get(pId))
+    .filter(p => p && p.answered)
+    .length;
+
+  io.to(room.id).emit('answer-progress', {
+    answered: answeredCount,
+    total: room.getPlayerCount()
+  });
+}
 
 function generateRoomCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

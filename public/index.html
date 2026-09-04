@@ -148,6 +148,9 @@
             <div class="progress">
                 <span id="question-number">1</span> / <span id="total-questions">10</span>
             </div>
+            <div class="answer-progress" id="answer-progress" hidden>
+                ✅ <span id="answered-count">0</span> / <span id="total-players-ingame">0</span> 已作答
+            </div>
             <div class="timer">
                 <span id="timer-display">30</span>s
             </div>
@@ -182,6 +185,7 @@
                 <div id="leaderboard-mini-list" class="mini-list">
                     <!-- 動態添加排名 -->
                 </div>
+                <button id="host-next-btn" class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="hostNextQuestion()" hidden>➡️ 下一題</button>
             </div>
         </div>
     </div>
@@ -192,7 +196,7 @@
             <div id="result-content">
                 <!-- 動態添加結果 -->
             </div>
-            <button class="btn btn-primary" onclick="proceedToNextQuestion()">下一題</button>
+            <p class="waiting-for-host">⏳ 等待主持人進入下一題...</p>
         </div>
     </div>
 

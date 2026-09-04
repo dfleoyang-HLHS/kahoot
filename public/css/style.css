@@ -685,6 +685,21 @@ body {
   color: white;
 }
 
+.answer-progress {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 6px 16px;
+  border-radius: 20px;
+}
+
+.waiting-for-host {
+  margin-top: 20px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
 /* ==================== 響應式設計 ==================== */
 
 @media (max-width: 768px) {

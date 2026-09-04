@@ -233,8 +233,18 @@ function displayQuestion(questionData) {
 
   document.getElementById('game-page').classList.toggle('host-view', isHost);
 
+  // 「已作答人數」與「下一題」按鈕只給主持人看，主持人自己決定何時進入下一題
+  document.getElementById('answer-progress').hidden = !isHost;
+  document.getElementById('answered-count').textContent = '0';
+  document.getElementById('host-next-btn').hidden = !isHost;
+
   showPage('game-page');
   startTimer(questionData.timeLimit || 30);
+}
+
+// 主持人手動點擊「下一題」才會前進，避免哪個學生先答完就幫全班跳題
+function hostNextQuestion() {
+  socket.emit('next-question', { roomId: currentRoomId, questionIndex: gameState.currentQuestionIndex });
 }
 
 function selectOption(optionIndex) {
@@ -319,14 +329,7 @@ function displayResult(resultData) {
   content.innerHTML = resultHTML;
   showPage('result-page');
 
-  // 2秒後自動進入下一題（帶上目前題號，讓伺服器忽略其他玩家重複送出的請求，避免連續跳題）
-  setTimeout(() => {
-    socket.emit('next-question', { roomId: currentRoomId, questionIndex: gameState.currentQuestionIndex });
-  }, 2000);
-}
-
-function proceedToNextQuestion() {
-  socket.emit('next-question', { roomId: currentRoomId, questionIndex: gameState.currentQuestionIndex });
+  // 是否進入下一題交給主持人手動控制，學生答完後只能等待
 }
 
 function displayLeaderboard(leaderboard) {
@@ -435,6 +438,13 @@ socket.on('answer-submitted', (data) => {
 
 socket.on('leaderboard-data', (data) => {
   displayLeaderboard(data.leaderboard);
+});
+
+// 「已作答人數 / 總人數」只給主持人監控畫面用
+socket.on('answer-progress', (data) => {
+  if (!isHost) return;
+  document.getElementById('answered-count').textContent = data.answered;
+  document.getElementById('total-players-ingame').textContent = data.total;
 });
 
 socket.on('quiz-ended', (data) => {
