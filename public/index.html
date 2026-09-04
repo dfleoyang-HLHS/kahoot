@@ -98,24 +98,42 @@
     <div id="upload-quiz-page" class="page">
         <div class="container">
             <h2>上傳問卷</h2>
-            
+
+            <div class="sample-quiz-box">
+                <h3>🧪 先用範例問卷測試</h3>
+                <p>不用準備自己的題目，點一下就能直接載入範例、馬上開始測試遊戲流程：</p>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="loadSampleQuiz('/samples/chemistry-quiz.json')">🧪 化學基礎知識測驗</button>
+                    <button type="button" class="btn btn-secondary" onclick="loadSampleQuiz('/samples/english-quiz.json')">🔤 English Vocabulary Quiz</button>
+                </div>
+            </div>
+
+            <div class="sample-quiz-box">
+                <h3>✏️ 製作自己的題目</h3>
+                <p>下載格式說明跟空白範本，照著填入自己的題目後，再用下面的「選擇 JSON 檔案」上傳：</p>
+                <div class="form-actions">
+                    <a class="btn btn-secondary" href="/docs/quiz-format.md" download>📄 問卷格式說明 (.md)</a>
+                    <a class="btn btn-secondary" href="/samples/quiz-template.json" download>📝 空白範本 (.json)</a>
+                </div>
+            </div>
+
             <form id="quiz-form" class="form">
                 <div class="form-group">
                     <label for="quiz-title">問卷標題:</label>
                     <input type="text" id="quiz-title" placeholder="例如：化學基礎知識測驗" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="quiz-file">選擇 JSON 檔案:</label>
                     <input type="file" id="quiz-file" accept=".json" required>
-                    <small>詳見 docs/quiz-format.md</small>
+                    <small>詳見上方「問卷格式說明」</small>
                 </div>
-                
+
                 <div id="questions-preview" class="questions-preview" style="display:none;">
                     <h3>問卷預覽</h3>
                     <div id="questions-list"></div>
                 </div>
-                
+
                 <div class="form-actions" id="upload-quiz-actions">
                     <button type="submit" class="btn btn-primary">確認上傳問卷</button>
                     <button type="button" class="btn btn-secondary" onclick="goBackToRoom()">返回</button>

@@ -201,9 +201,11 @@ body {
   margin-top: 30px;
 }
 
-.form-actions button {
+.form-actions button,
+.form-actions a {
   flex: 1;
   max-width: 250px;
+  text-align: center;
 }
 
 /* ==================== 房間代碼頁面 ==================== */
@@ -590,6 +592,31 @@ body {
 .game-stats p {
   color: #666;
   margin: 8px 0;
+}
+
+/* ==================== 範例問卷 / 範本下載 ==================== */
+
+.sample-quiz-box {
+  background: var(--light-color);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.sample-quiz-box h3 {
+  color: var(--dark-color);
+  margin-bottom: 8px;
+}
+
+.sample-quiz-box p {
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.sample-quiz-box .form-actions {
+  margin: 0;
+  justify-content: flex-start;
 }
 
 /* ==================== 問卷預覽 ==================== */

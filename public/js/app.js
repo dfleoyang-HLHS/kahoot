@@ -138,29 +138,49 @@ document.getElementById('quiz-form')?.addEventListener('submit', async (e) => {
   try {
     const text = await file.text();
     const quizData = JSON.parse(text);
-
-    // 驗證問卷格式
-    if (!quizData.questions || !Array.isArray(quizData.questions)) {
-      alert('問卷格式無效，請檢查檔案');
-      return;
-    }
-
-    gameState.questions = quizData.questions;
-    gameState.currentQuestionIndex = 0;
-
-    // 預覽問卷
-    displayQuizPreview(quizData.questions);
-
-    // 發送到伺服器
-    socket.emit('set-questions', {
-      roomId: currentRoomId,
-      questions: quizData.questions
-    });
+    applyQuizData(quizData);
   } catch (error) {
     console.error('解析問卷失敗:', error);
     alert('問卷檔案格式錯誤，請檢查 JSON 格式');
   }
 });
+
+// 載入 public/samples/ 底下的範例問卷，讓老師不用準備自己的題目就能先測試遊戲流程
+async function loadSampleQuiz(path) {
+  try {
+    const response = await fetch(path);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const quizData = await response.json();
+    applyQuizData(quizData);
+  } catch (error) {
+    console.error('載入範例問卷失敗:', error);
+    alert('載入範例問卷失敗，請重試');
+  }
+}
+
+// 手動上傳檔案跟載入範例問卷共用的邏輯：驗證格式、更新預覽、送到伺服器
+function applyQuizData(quizData) {
+  if (!quizData.questions || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
+    alert('問卷格式無效，請檢查檔案');
+    return;
+  }
+
+  document.getElementById('quiz-title').value = quizData.title || '';
+
+  gameState.questions = quizData.questions;
+  gameState.currentQuestionIndex = 0;
+
+  // 預覽問卷
+  displayQuizPreview(quizData.questions);
+
+  // 發送到伺服器
+  socket.emit('set-questions', {
+    roomId: currentRoomId,
+    questions: quizData.questions
+  });
+}
 
 function displayQuizPreview(questions) {
   const preview = document.getElementById('questions-preview');

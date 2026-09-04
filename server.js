@@ -27,6 +27,7 @@ const io = socketIo(server, {
 // 中間件
 app.use(express.json());
 app.use(express.static('public'));
+app.use('/docs', express.static('docs'));
 
 // 全局變量
 const rooms = new Map();

@@ -3,6 +3,10 @@
 ## 概述
 Kahoot 使用 JSON 格式定義問卷題目。本文檔說明如何創建自己的問卷檔案。
 
+> 💡 想直接動手做題目嗎？下載 [`public/samples/quiz-template.json`](../public/samples/quiz-template.json)
+> 這個空白範本，把裡面的標題、題目、選項換成自己的內容即可，也可以在主持人畫面的
+> 「上傳問卷」頁面直接下載這兩個檔案。
+
 ## 基本結構
 
 ```json
