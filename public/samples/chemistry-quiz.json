@@ -1,0 +1,136 @@
+{
+  "title": "化學基礎知識測驗",
+  "description": "測試學生對於高中化學基礎概念的理解",
+  "questions": [
+    {
+      "id": "q1",
+      "question": "以下哪一種物質是純物質？",
+      "options": [
+        "空氣",
+        "食鹽水",
+        "蒸餾水",
+        "油水混合物"
+      ],
+      "correctAnswer": 2,
+      "timeLimit": 30,
+      "category": "物質分類"
+    },
+    {
+      "id": "q2",
+      "question": "原子序數是指什麼？",
+      "options": [
+        "原子的質量數",
+        "質子的個數",
+        "中子的個數",
+        "電子的質量"
+      ],
+      "correctAnswer": 1,
+      "timeLimit": 30,
+      "category": "原子結構"
+    },
+    {
+      "id": "q3",
+      "question": "下列哪個是酸性氧化物？",
+      "options": [
+        "MgO",
+        "Na2O",
+        "SO2",
+        "CaO"
+      ],
+      "correctAnswer": 2,
+      "timeLimit": 30,
+      "category": "氧化物"
+    },
+    {
+      "id": "q4",
+      "question": "化合價中，氧通常顯幾價？",
+      "options": [
+        "+2 價",
+        "-2 價",
+        "+1 價",
+        "-1 價"
+      ],
+      "correctAnswer": 1,
+      "timeLimit": 30,
+      "category": "化合價"
+    },
+    {
+      "id": "q5",
+      "question": "以下哪種反應是分解反應？",
+      "options": [
+        "H2 + Cl2 → 2HCl",
+        "2H2O2 → 2H2O + O2↑",
+        "NaCl + AgNO3 → AgCl↓ + NaNO3",
+        "Cu + 2AgNO3 → Cu(NO3)2 + 2Ag"
+      ],
+      "correctAnswer": 1,
+      "timeLimit": 30,
+      "category": "化學反應分類"
+    },
+    {
+      "id": "q6",
+      "question": "溶液的 pH 值為 7，則該溶液呈現什麼性質？",
+      "options": [
+        "酸性",
+        "鹼性",
+        "中性",
+        "無法判斷"
+      ],
+      "correctAnswer": 2,
+      "timeLimit": 30,
+      "category": "酸鹼性"
+    },
+    {
+      "id": "q7",
+      "question": "以下哪個是離子化合物？",
+      "options": [
+        "HCl",
+        "CO2",
+        "NaCl",
+        "NH3"
+      ],
+      "correctAnswer": 2,
+      "timeLimit": 30,
+      "category": "化合物分類"
+    },
+    {
+      "id": "q8",
+      "question": "摩爾 (mol) 是測量什麼的單位？",
+      "options": [
+        "物質的質量",
+        "物質的體積",
+        "物質的物質的量",
+        "物質的濃度"
+      ],
+      "correctAnswer": 2,
+      "timeLimit": 30,
+      "category": "物質的量"
+    },
+    {
+      "id": "q9",
+      "question": "以下哪個化合物中，氮的化合價最高？",
+      "options": [
+        "NH3",
+        "N2",
+        "HNO3",
+        "NO2"
+      ],
+      "correctAnswer": 2,
+      "timeLimit": 30,
+      "category": "化合價"
+    },
+    {
+      "id": "q10",
+      "question": "固體 NaCl 中，Na 和 Cl 的質子數比例是多少？",
+      "options": [
+        "1:1",
+        "11:17",
+        "12:18",
+        "23:35"
+      ],
+      "correctAnswer": 1,
+      "timeLimit": 30,
+      "category": "質子數"
+    }
+  ]
+}
