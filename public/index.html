@@ -88,7 +88,7 @@
             </div>
             
             <div class="form-actions">
-                <button class="btn btn-primary" onclick="showUploadQuiz()">📚 上傳問卷</button>
+                <button id="upload-quiz-btn" class="btn btn-primary" onclick="showUploadQuiz()">📚 上傳問卷</button>
                 <button class="btn btn-secondary" onclick="showHomePage()">返回首頁</button>
             </div>
         </div>
@@ -116,8 +116,8 @@
                     <div id="questions-list"></div>
                 </div>
                 
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">確認並開始遊戲</button>
+                <div class="form-actions" id="upload-quiz-actions">
+                    <button type="submit" class="btn btn-primary">確認上傳問卷</button>
                     <button type="button" class="btn btn-secondary" onclick="goBackToRoom()">返回</button>
                 </div>
             </form>

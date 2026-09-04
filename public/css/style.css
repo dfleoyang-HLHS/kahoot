@@ -405,6 +405,24 @@ body {
   flex: 1;
 }
 
+/* 主持人監控畫面：選項僅供顯示，不可作答 */
+.option-btn:disabled {
+  cursor: default;
+}
+
+.option-btn:disabled:hover {
+  transform: none;
+}
+
+#game-page.host-view .question-card::before {
+  content: "🖥️ 主持人監控畫面（僅顯示，不作答）";
+  display: block;
+  margin-bottom: 15px;
+  color: var(--secondary-color);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
 /* ==================== 迷你排分板 ==================== */
 
 .leaderboard-mini {
