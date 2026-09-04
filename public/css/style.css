@@ -1,0 +1,722 @@
+/* ==================== 全局樣式 ==================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary-color: #ff6b6b;
+  --secondary-color: #4ecdc4;
+  --success-color: #51cf66;
+  --danger-color: #ff6b6b;
+  --warning-color: #ffd43b;
+  --dark-color: #2c3e50;
+  --light-color: #ecf0f1;
+  --text-color: #333;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: var(--text-color);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ==================== 頁面容器 ==================== */
+
+.page {
+  display: none;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.page.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* ==================== 首頁 ==================== */
+
+#home-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+}
+
+#home-page .container {
+  background: white;
+  padding: 60px 40px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  max-width: 500px;
+}
+
+.logo {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tagline {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 40px;
+}
+
+.home-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* ==================== 按鈕樣式 ==================== */
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-color), #ff5252);
+  color: white;
+}
+
+.btn-secondary {
+  background: var(--light-color);
+  color: var(--dark-color);
+  border: 2px solid var(--dark-color);
+}
+
+.btn-large {
+  padding: 18px 36px;
+  font-size: 1.1rem;
+}
+
+.btn-small {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+/* ==================== 表單樣式 ==================== */
+
+.form {
+  background: white;
+  padding: 40px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  max-width: 600px;
+  margin: 40px auto;
+}
+
+.form h2 {
+  color: var(--dark-color);
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--dark-color);
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--light-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+.form-group small {
+  display: block;
+  margin-top: 5px;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.form-actions button {
+  flex: 1;
+  max-width: 250px;
+}
+
+/* ==================== 房間代碼頁面 ==================== */
+
+.room-info-card {
+  background: white;
+  padding: 40px;
+  border-radius: var(--border-radius);
+  text-align: center;
+  box-shadow: var(--box-shadow);
+  margin-bottom: 30px;
+}
+
+.room-code-display {
+  margin: 30px 0;
+}
+
+.room-code {
+  font-size: 3rem;
+  color: var(--primary-color);
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 5px;
+  margin: 20px 0;
+}
+
+.player-count {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 20px 0;
+}
+
+.players-list {
+  background: white;
+  padding: 30px;
+  border-radius: var(--border-radius);
+  margin-bottom: 30px;
+  box-shadow: var(--box-shadow);
+}
+
+.players-list h3 {
+  margin-bottom: 20px;
+  color: var(--dark-color);
+}
+
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.player-card {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.player-card p {
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ==================== 遊戲頁面 ==================== */
+
+#game-page {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+  display: none;
+}
+
+#game-page.active {
+  display: block;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto 30px;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.game-container {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.question-card {
+  background: white;
+  padding: 40px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.question-card h2 {
+  color: var(--dark-color);
+  margin-bottom: 40px;
+  font-size: 1.5rem;
+  line-height: 1.6;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.option-btn {
+  background: white;
+  border: 3px solid var(--light-color);
+  padding: 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.option-btn:hover {
+  border-color: var(--secondary-color);
+  background: #f8fafb;
+  transform: translateY(-3px);
+}
+
+.option-btn.selected {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.option-btn.correct {
+  background: var(--success-color);
+  border-color: var(--success-color);
+  color: white;
+}
+
+.option-btn.incorrect {
+  background: var(--danger-color);
+  border-color: var(--danger-color);
+  color: white;
+}
+
+.option-letter {
+  width: 40px;
+  height: 40px;
+  background: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.option-btn.selected .option-letter,
+.option-btn.correct .option-letter,
+.option-btn.incorrect .option-letter {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.option-text {
+  flex: 1;
+}
+
+/* ==================== 迷你排分板 ==================== */
+
+.leaderboard-mini {
+  background: white;
+  padding: 20px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  height: fit-content;
+}
+
+.leaderboard-mini h4 {
+  color: var(--dark-color);
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mini-player {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: var(--light-color);
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.mini-player .rank {
+  font-weight: bold;
+  color: var(--primary-color);
+  width: 30px;
+}
+
+.mini-player .name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-player .score {
+  font-weight: bold;
+  color: var(--dark-color);
+}
+
+/* ==================== 結果頁面 ==================== */
+
+.result-container {
+  max-width: 600px;
+  margin: 60px auto;
+  text-align: center;
+}
+
+#result-content {
+  background: white;
+  padding: 40px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin-bottom: 30px;
+}
+
+.result-correct {
+  color: var(--success-color);
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.result-incorrect {
+  color: var(--danger-color);
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.result-score {
+  font-size: 2rem;
+  color: var(--primary-color);
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.result-time {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+/* ==================== 最終頁面 ==================== */
+
+#final-page .container {
+  background: white;
+  padding: 40px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  max-width: 800px;
+  margin: 40px auto;
+}
+
+#final-page h1 {
+  text-align: center;
+  color: var(--primary-color);
+  margin-bottom: 40px;
+  font-size: 2.5rem;
+}
+
+.final-leaderboard {
+  margin-bottom: 40px;
+}
+
+.final-leaderboard h2 {
+  color: var(--dark-color);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+#final-leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+#final-leaderboard-table thead {
+  background: var(--light-color);
+}
+
+#final-leaderboard-table th,
+#final-leaderboard-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--light-color);
+}
+
+#final-leaderboard-table th {
+  font-weight: bold;
+  color: var(--dark-color);
+}
+
+#final-leaderboard-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.leaderboard-rank {
+  font-weight: bold;
+  color: var(--primary-color);
+  font-size: 1.1rem;
+}
+
+.game-stats {
+  background: var(--light-color);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.game-stats h3 {
+  color: var(--dark-color);
+  margin-bottom: 15px;
+}
+
+.game-stats p {
+  color: #666;
+  margin: 8px 0;
+}
+
+/* ==================== 問卷預覽 ==================== */
+
+.questions-preview {
+  background: var(--light-color);
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.questions-preview h3 {
+  color: var(--dark-color);
+  margin-bottom: 15px;
+}
+
+.question-item {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.question-item p {
+  margin: 5px 0;
+  color: #666;
+}
+
+.question-item strong {
+  color: var(--dark-color);
+}
+
+/* ==================== 計時器 ==================== */
+
+.timer {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+}
+
+.timer.warning {
+  color: var(--warning-color);
+  animation: pulse 1s infinite;
+}
+
+.timer.danger {
+  color: var(--danger-color);
+  animation: pulse 0.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ==================== 進度條 ==================== */
+
+.progress {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+}
+
+/* ==================== 響應式設計 ==================== */
+
+@media (max-width: 768px) {
+  .game-container {
+    grid-template-columns: 1fr;
+  }
+
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .leaderboard-mini {
+    order: -1;
+  }
+
+  #final-leaderboard-table {
+    font-size: 0.9rem;
+  }
+
+  #final-leaderboard-table th,
+  #final-leaderboard-table td {
+    padding: 10px;
+  }
+
+  .logo {
+    font-size: 3rem;
+  }
+
+  .room-code {
+    font-size: 2rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    max-width: 100%;
+  }
+
+  .players-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .form {
+    padding: 20px;
+  }
+
+  .room-info-card {
+    padding: 20px;
+  }
+
+  .question-card {
+    padding: 20px;
+  }
+
+  .question-card h2 {
+    font-size: 1.2rem;
+  }
+
+  .option-btn {
+    flex-direction: column;
+    text-align: center;
+    padding: 15px;
+  }
+
+  .logo {
+    font-size: 2.5rem;
+  }
+
+  .room-code {
+    font-size: 1.5rem;
+  }
+
+  #final-page h1 {
+    font-size: 1.8rem;
+  }
+}
