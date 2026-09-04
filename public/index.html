@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kahoot - 互動問卷遊戲</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- 首頁 -->
+    <div id="home-page" class="page active">
+        <div class="container">
+            <h1 class="logo">🎮 Kahoot</h1>
+            <p class="tagline">互動式線上問卷遊戲</p>
+            
+            <div class="home-options">
+                <button class="btn btn-primary btn-large" onclick="showCreateRoom()">
+                    📝 建立遊戲房間
+                </button>
+                <button class="btn btn-secondary btn-large" onclick="showJoinRoom()">
+                    👥 加入遊戲
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 建立房間頁面 -->
+    <div id="create-room-page" class="page">
+        <div class="container">
+            <h2>建立新遊戲房間</h2>
+            
+            <form id="create-room-form" class="form">
+                <div class="form-group">
+                    <label for="host-name">您的名稱:</label>
+                    <input type="text" id="host-name" placeholder="例如：老師 or 主持人" required>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">建立房間</button>
+                    <button type="button" class="btn btn-secondary" onclick="showHomePage()">返回</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 加入房間頁面 -->
+    <div id="join-room-page" class="page">
+        <div class="container">
+            <h2>加入遊戲房間</h2>
+            
+            <form id="join-room-form" class="form">
+                <div class="form-group">
+                    <label for="room-id">房間代碼:</label>
+                    <input type="text" id="room-id" placeholder="輸入6個字元的房間代碼" maxlength="8" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="player-name">您的名稱:</label>
+                    <input type="text" id="player-name" placeholder="例如：小明" required>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">加入遊戲</button>
+                    <button type="button" class="btn btn-secondary" onclick="showHomePage()">返回</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 房間代碼顯示頁面（主持人） -->
+    <div id="room-code-page" class="page">
+        <div class="container">
+            <div class="room-info-card">
+                <h2>遊戲房間已建立</h2>
+                <div class="room-code-display">
+                    <p>房間代碼:</p>
+                    <h1 id="room-code-display" class="room-code">XXXXXX</h1>
+                    <button class="btn btn-small" onclick="copyRoomCode()">📋 複製代碼</button>
+                </div>
+                <p class="player-count">已加入玩家: <span id="player-count">0</span></p>
+            </div>
+            
+            <div class="players-list">
+                <h3>玩家列表</h3>
+                <div id="players-container" class="players-grid">
+                    <!-- 動態添加玩家 -->
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn btn-primary" onclick="showUploadQuiz()">📚 上傳問卷</button>
+                <button class="btn btn-secondary" onclick="showHomePage()">返回首頁</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 上傳/設置問卷頁面 -->
+    <div id="upload-quiz-page" class="page">
+        <div class="container">
+            <h2>上傳問卷</h2>
+            
+            <form id="quiz-form" class="form">
+                <div class="form-group">
+                    <label for="quiz-title">問卷標題:</label>
+                    <input type="text" id="quiz-title" placeholder="例如：化學基礎知識測驗" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quiz-file">選擇 JSON 檔案:</label>
+                    <input type="file" id="quiz-file" accept=".json" required>
+                    <small>詳見 docs/quiz-format.md</small>
+                </div>
+                
+                <div id="questions-preview" class="questions-preview" style="display:none;">
+                    <h3>問卷預覽</h3>
+                    <div id="questions-list"></div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">確認並開始遊戲</button>
+                    <button type="button" class="btn btn-secondary" onclick="goBackToRoom()">返回</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 遊戲進行頁面 -->
+    <div id="game-page" class="page">
+        <div class="game-header">
+            <div class="progress">
+                <span id="question-number">1</span> / <span id="total-questions">10</span>
+            </div>
+            <div class="timer">
+                <span id="timer-display">30</span>s
+            </div>
+        </div>
+
+        <div class="game-container">
+            <div class="question-card">
+                <h2 id="question-text">題目在這裡</h2>
+                
+                <div class="options-grid">
+                    <button class="option-btn" data-index="0" onclick="selectOption(0)">
+                        <span class="option-letter">A</span>
+                        <span class="option-text" id="option-0">選項 1</span>
+                    </button>
+                    <button class="option-btn" data-index="1" onclick="selectOption(1)">
+                        <span class="option-letter">B</span>
+                        <span class="option-text" id="option-1">選項 2</span>
+                    </button>
+                    <button class="option-btn" data-index="2" onclick="selectOption(2)">
+                        <span class="option-letter">C</span>
+                        <span class="option-text" id="option-2">選項 3</span>
+                    </button>
+                    <button class="option-btn" data-index="3" onclick="selectOption(3)">
+                        <span class="option-letter">D</span>
+                        <span class="option-text" id="option-3">選項 4</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="leaderboard-mini">
+                <h4>目前排名</h4>
+                <div id="leaderboard-mini-list" class="mini-list">
+                    <!-- 動態添加排名 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 答題結果頁面 -->
+    <div id="result-page" class="page">
+        <div class="result-container">
+            <div id="result-content">
+                <!-- 動態添加結果 -->
+            </div>
+            <button class="btn btn-primary" onclick="proceedToNextQuestion()">下一題</button>
+        </div>
+    </div>
+
+    <!-- 遊戲結束頁面 -->
+    <div id="final-page" class="page">
+        <div class="container">
+            <h1>🎊 遊戲結束</h1>
+            
+            <div class="final-leaderboard">
+                <h2>最終排分板</h2>
+                <table id="final-leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>玩家</th>
+                            <th>得分</th>
+                            <th>準確率</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                        <!-- 動態添加排分板 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="game-stats">
+                <h3>遊戲統計</h3>
+                <p>遊戲時長: <span id="game-duration">0 分 0 秒</span></p>
+                <p>總題數: <span id="game-total-questions">0</span></p>
+                <p>參與人數: <span id="game-player-count">0</span></p>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-primary" onclick="playAgain()">🔄 再來一次</button>
+                <button class="btn btn-secondary" onclick="showHomePage()">🏠 返回首頁</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Socket.IO 和自訂腳本 -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
