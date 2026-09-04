@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: kahoot-classroom
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/status
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.0
