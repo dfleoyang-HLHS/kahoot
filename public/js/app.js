@@ -67,7 +67,8 @@ document.getElementById('create-room-form')?.addEventListener('submit', async (e
       currentRoomId = data.roomId;
       isHost = true;
       socket.emit('join-room', { roomId: data.roomId, playerId: 'host_' + data.roomId });
-      
+
+      document.getElementById('upload-quiz-btn').style.display = '';
       document.getElementById('room-code-display').textContent = data.roomId;
       showPage('room-code-page');
       
@@ -97,7 +98,10 @@ document.getElementById('join-room-form')?.addEventListener('submit', async (e) 
       currentRoomId = data.roomId;
       isHost = false;
       socket.emit('join-room', { roomId: data.roomId, playerId: data.playerId });
-      
+
+      // 學生不是主持人，不能上傳問卷/開始遊戲，只能等待
+      document.getElementById('upload-quiz-btn').style.display = 'none';
+
       // 等待主持人開始遊戲
       alert(`成功加入房間 ${roomId}！\n請等待主持人開始遊戲...`);
       showPage('room-code-page');
@@ -203,14 +207,18 @@ function displayQuestion(questionData) {
     document.getElementById(`option-${idx}`).textContent = option;
     const btn = document.querySelector(`[data-index="${idx}"]`);
     btn.classList.remove('selected', 'correct', 'incorrect', 'disabled');
-    btn.disabled = false;
+    // 主持人畫面只用來監控題目與排行榜，不能作答
+    btn.disabled = isHost;
   });
+
+  document.getElementById('game-page').classList.toggle('host-view', isHost);
 
   showPage('game-page');
   startTimer(questionData.timeLimit || 30);
 }
 
 function selectOption(optionIndex) {
+  if (isHost) return;
   if (gameState.answerSubmitted) return;
 
   gameState.selectedAnswer = optionIndex;
@@ -241,6 +249,9 @@ function submitAnswer(answerIndex) {
 // ==================== 計時器 ====================
 
 function startTimer(timeLimit) {
+  // 題目可能因為其他玩家先答完而提前切換，务必先清掉還在跑的舊計時器，
+  // 否則新舊計時器同時遞增 timeUsed 會造成倒數異常、提前誤判時間到
+  clearInterval(gameTimer);
   gameState.timeUsed = 0;
   const timerDisplay = document.getElementById('timer-display');
   const timerElement = document.querySelector('.timer');
@@ -260,10 +271,10 @@ function startTimer(timeLimit) {
       timerElement.classList.remove('warning', 'danger');
     }
 
-    // 時間到自動提交
+    // 時間到自動提交（主持人只是監控畫面，不作答）
     if (remaining <= 0) {
       clearInterval(gameTimer);
-      if (!gameState.answerSubmitted) {
+      if (!isHost && !gameState.answerSubmitted) {
         submitAnswer(-1); // -1 代表未作答
       }
     }
@@ -288,14 +299,14 @@ function displayResult(resultData) {
   content.innerHTML = resultHTML;
   showPage('result-page');
 
-  // 2秒後自動進入下一題
+  // 2秒後自動進入下一題（帶上目前題號，讓伺服器忽略其他玩家重複送出的請求，避免連續跳題）
   setTimeout(() => {
-    socket.emit('next-question', { roomId: currentRoomId });
+    socket.emit('next-question', { roomId: currentRoomId, questionIndex: gameState.currentQuestionIndex });
   }, 2000);
 }
 
 function proceedToNextQuestion() {
-  socket.emit('next-question', { roomId: currentRoomId });
+  socket.emit('next-question', { roomId: currentRoomId, questionIndex: gameState.currentQuestionIndex });
 }
 
 function displayLeaderboard(leaderboard) {
@@ -373,11 +384,16 @@ socket.on('player-joined', (data) => {
 });
 
 socket.on('quiz-ready', (data) => {
+  // 這個事件會廣播給整個房間，但「開始遊戲」按鈕只有主持人畫面上才有意義，
+  // 學生端不需要（也看不到）這個提示
+  if (!isHost) return;
+
   console.log('問卷已上傳:', data.totalQuestions);
   alert(`問卷已上傳！共 ${data.totalQuestions} 題\n\n點擊 "開始遊戲" 按鈕開始`);
   
-  // 添加開始按鈕
-  const container = document.querySelector('.form-actions');
+  // 添加開始按鈕（必須加到上傳問卷頁面自己的按鈕區，而不是任意一個 .form-actions，
+  // 否則主持人在其他頁面看不到按鈕，遊戲會卡住無法開始）
+  const container = document.getElementById('upload-quiz-actions');
   if (!document.getElementById('start-btn')) {
     const startBtn = document.createElement('button');
     startBtn.id = 'start-btn';

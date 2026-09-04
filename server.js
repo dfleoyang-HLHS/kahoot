@@ -202,10 +202,16 @@ io.on('connection', (socket) => {
   });
 
   socket.on('next-question', (data) => {
-    const { roomId } = data;
+    const { roomId, questionIndex } = data;
     const room = rooms.get(roomId.toUpperCase());
 
     if (!room) return;
+
+    // 多個玩家答完題後都會請求進下一題，只有第一個請求應該生效，
+    // 之後帶著同一題號的重複請求要被忽略，避免連續跳題
+    if (typeof questionIndex === 'number' && questionIndex !== room.currentQuestion) {
+      return;
+    }
 
     GameLogic.resetGameState(
       room.players.map(pId => players.get(pId)).filter(p => p)
