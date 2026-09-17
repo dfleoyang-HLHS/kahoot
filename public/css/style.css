@@ -79,7 +79,7 @@ body {
 
 /* ==================== 首頁 ==================== */
 
-#home-page {
+#home-page.active {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -305,15 +305,11 @@ body {
 
 /* ==================== 遊戲頁面 ==================== */
 
-#game-page {
+#game-page.active {
+  display: block;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   padding: 20px;
-  display: none;
-}
-
-#game-page.active {
-  display: block;
 }
 
 .game-header {
