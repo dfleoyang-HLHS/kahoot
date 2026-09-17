@@ -1,59 +1,41 @@
 /**
  * Game Logic Module
- * 處理遊戲計分、驗證答案、管理遊戲狀態
+ * 計分、驗證、排行榜、每題統計
  */
 
 const POINTS_CONFIG = {
   maxPointsPerQuestion: 1000,
-  timeDecayPerSecond: 10, // 每秒扣10分
-  perfectTimeBonus: 50,   // 完美答題時間獎勵
+  timeDecayPerSecond: 10,
+  perfectTimeBonus: 50,
 };
 
 class GameLogic {
-  /**
-   * 計算玩家得分
-   * @param {boolean} isCorrect - 是否答題正確
-   * @param {number} timeUsed - 使用時間(秒)
-   * @param {number} timeLimit - 題目時間限制(秒)
-   * @returns {number} 得分
-   */
   static calculateScore(isCorrect, timeUsed, timeLimit) {
     if (!isCorrect) {
       return 0;
     }
 
-    // 基礎分數
     let score = POINTS_CONFIG.maxPointsPerQuestion;
-
-    // 時間扣分
-    const timeDecay = timeUsed * POINTS_CONFIG.timeDecayPerSecond;
+    const cappedTime = Math.min(Math.max(0, timeUsed), timeLimit);
+    const timeDecay = cappedTime * POINTS_CONFIG.timeDecayPerSecond;
     score = Math.max(0, score - timeDecay);
 
-    // 快速答題獎勵
-    if (timeUsed <= timeLimit * 0.3) {
+    if (cappedTime <= timeLimit * 0.3) {
       score += POINTS_CONFIG.perfectTimeBonus;
     }
 
     return Math.floor(score);
   }
 
-  /**
-   * 驗證答案正確性
-   * @param {number} playerAnswer - 玩家選擇的答案索引
-   * @param {number} correctAnswer - 正確答案索引
-   * @returns {boolean}
-   */
   static validateAnswer(playerAnswer, correctAnswer) {
+    if (playerAnswer === -1 || playerAnswer === null || playerAnswer === undefined) {
+      return false;
+    }
     return playerAnswer === correctAnswer;
   }
 
-  /**
-   * 生成排分板
-   * @param {Array} players - 玩家對象數組
-   * @returns {Array} 排序後的玩家排分板
-   */
   static generateLeaderboard(players) {
-    const leaderboard = players
+    return players
       .map(player => ({
         rank: 0,
         id: player.id,
@@ -63,48 +45,66 @@ class GameLogic {
         totalAnswers: player.answers.length,
         accuracy: player.answers.length > 0
           ? Math.round((player.answers.filter(a => a.isCorrect).length / player.answers.length) * 100)
-          : 0
+          : 0,
+        connected: player.connected !== false
       }))
       .sort((a, b) => {
-        // 先按分數排序，分數相同則按答題準確率排序
-        if (b.score !== a.score) {
-          return b.score - a.score;
-        }
+        if (b.score !== a.score) return b.score - a.score;
         return b.accuracy - a.accuracy;
       })
       .map((entry, index) => ({
         ...entry,
         rank: index + 1
       }));
-
-    return leaderboard;
   }
 
   /**
-   * 計算答題統計
-   * @param {Object} question - 題目對象
-   * @param {Array} allAnswers - 所有玩家的答案
-   * @returns {Object} 統計數據
+   * 依目前題號蒐集該題所有作答，產出選項分佈
    */
-  static calculateQuestionStats(question, allAnswers) {
-    if (!allAnswers || allAnswers.length === 0) {
+  static calculateQuestionStats(question, players, questionIndex) {
+    const allAnswers = players
+      .map(p => p.answers.find(a => a.questionIndex === questionIndex))
+      .filter(Boolean);
+
+    if (!question) {
       return {
         totalResponses: 0,
         correctCount: 0,
         accuracy: 0,
+        correctAnswer: 0,
         optionStats: {}
       };
     }
 
-    const correctCount = allAnswers.filter(a => a.answerIndex === question.correctAnswer).length;
+    if (allAnswers.length === 0) {
+      const emptyStats = {};
+      for (let i = 0; i < question.options.length; i++) {
+        emptyStats[i] = {
+          option: question.options[i],
+          count: 0,
+          percentage: 0,
+          isCorrect: i === question.correctAnswer
+        };
+      }
+      return {
+        totalResponses: 0,
+        correctCount: 0,
+        accuracy: 0,
+        correctAnswer: question.correctAnswer,
+        optionStats: emptyStats
+      };
+    }
+
+    const correctCount = allAnswers.filter(a => a.isCorrect).length;
     const optionStats = {};
 
-    // 統計每個選項的選擇人數
     for (let i = 0; i < question.options.length; i++) {
+      const count = allAnswers.filter(a => a.answerIndex === i).length;
       optionStats[i] = {
         option: question.options[i],
-        count: allAnswers.filter(a => a.answerIndex === i).length,
-        percentage: Math.round((allAnswers.filter(a => a.answerIndex === i).length / allAnswers.length) * 100)
+        count,
+        percentage: Math.round((count / allAnswers.length) * 100),
+        isCorrect: i === question.correctAnswer
       };
     }
 
@@ -112,19 +112,13 @@ class GameLogic {
       totalResponses: allAnswers.length,
       correctCount,
       accuracy: Math.round((correctCount / allAnswers.length) * 100),
+      correctAnswer: question.correctAnswer,
       optionStats
     };
   }
 
-  /**
-   * 檢測快速答題者
-   * @param {number} timeUsed - 使用時間
-   * @param {number} timeLimit - 時間限制
-   * @returns {Object} 快速答題獎勵信息
-   */
   static checkFastAnswerBonus(timeUsed, timeLimit) {
     const threshold = timeLimit * 0.3;
-    
     if (timeUsed <= threshold) {
       return {
         isFastAnswer: true,
@@ -132,39 +126,22 @@ class GameLogic {
         message: '⚡ 快速答題獎勵！'
       };
     }
-
-    return {
-      isFastAnswer: false,
-      bonus: 0,
-      message: ''
-    };
+    return { isFastAnswer: false, bonus: 0, message: '' };
   }
 
-  /**
-   * 重置遊戲狀態
-   * @param {Array} players - 玩家數組
-   */
   static resetGameState(players) {
     players.forEach(player => {
       player.resetForNextQuestion();
     });
   }
 
-  /**
-   * 獲取遊戲摘要
-   * @param {Object} gameRoom - 遊戲房間
-   * @param {Array} players - 玩家數組
-   * @returns {Object} 遊戲摘要
-   */
   static getGameSummary(gameRoom, players) {
     const leaderboard = this.generateLeaderboard(players);
-    const duration = gameRoom.getGameDuration();
-    const totalQuestions = gameRoom.getTotalQuestions();
-
     return {
       title: '遊戲結束',
-      duration: `${Math.floor(duration / 60)}分 ${duration % 60}秒`,
-      totalQuestions,
+      duration: gameRoom.formatDuration(),
+      durationSeconds: gameRoom.getGameDuration(),
+      totalQuestions: gameRoom.getTotalQuestions(),
       playerCount: players.length,
       leaderboard,
       highestScore: leaderboard[0]?.score || 0,
