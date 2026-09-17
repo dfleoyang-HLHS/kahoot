@@ -1,7 +1,9 @@
 /**
  * Player Model
- * 定義玩家的數據結構和遊戲統計
+ * 玩家資料、作答紀錄與重連 token
  */
+
+const crypto = require('crypto');
 
 class Player {
   constructor(id, name, roomId) {
@@ -10,13 +12,19 @@ class Player {
     this.roomId = roomId;
     this.score = 0;
     this.answered = false;
-    this.answers = []; // Array of answer objects
+    this.answers = [];
     this.joinedAt = new Date();
     this.connectionId = null;
     this.isHost = false;
+    this.reconnectToken = crypto.randomBytes(16).toString('hex');
+    this.connected = true;
+    this.disconnectedAt = null;
   }
 
   submitAnswer(questionIndex, answerIndex, isCorrect, points) {
+    if (this.answered) {
+      return false;
+    }
     this.answered = true;
     this.answers.push({
       questionIndex,
@@ -26,10 +34,23 @@ class Player {
       timestamp: new Date()
     });
     this.score += points;
+    return true;
   }
 
   resetForNextQuestion() {
     this.answered = false;
+  }
+
+  markConnected(socketId) {
+    this.connected = true;
+    this.connectionId = socketId;
+    this.disconnectedAt = null;
+  }
+
+  markDisconnected() {
+    this.connected = false;
+    this.connectionId = null;
+    this.disconnectedAt = new Date();
   }
 
   getStats() {
@@ -58,6 +79,7 @@ class Player {
       roomId: this.roomId,
       score: this.score,
       answered: this.answered,
+      connected: this.connected,
       stats: this.getStats(),
       joinedAt: this.joinedAt
     };

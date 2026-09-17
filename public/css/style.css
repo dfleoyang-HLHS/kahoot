@@ -79,7 +79,7 @@ body {
 
 /* ==================== 首頁 ==================== */
 
-#home-page {
+#home-page.active {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -305,15 +305,11 @@ body {
 
 /* ==================== 遊戲頁面 ==================== */
 
-#game-page {
+#game-page.active {
+  display: block;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   padding: 20px;
-  display: none;
-}
-
-#game-page.active {
-  display: block;
 }
 
 .game-header {
@@ -806,5 +802,289 @@ body {
 
   #final-page h1 {
     font-size: 1.8rem;
+  }
+}
+
+/* ==================== 雙視圖：主持人 / 玩家 ==================== */
+
+body.is-host .player-only {
+  display: none !important;
+}
+
+body.is-player .host-only {
+  display: none !important;
+}
+
+#game-page.player-view .game-container {
+  grid-template-columns: 1fr;
+}
+
+#game-page.player-view .leaderboard-mini {
+  display: none;
+}
+
+#game-page.player-view .question-card {
+  background: transparent;
+  box-shadow: none;
+  padding: 10px;
+}
+
+#game-page.player-view #question-text {
+  color: white;
+  text-align: center;
+  font-size: 1.25rem;
+  margin-bottom: 20px;
+}
+
+#game-page.player-view .options-grid {
+  min-height: 50vh;
+}
+
+#game-page.player-view .option-btn {
+  min-height: 100px;
+  justify-content: center;
+  color: white;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+#game-page.player-view .option-btn .option-letter {
+  background: rgba(255, 255, 255, 0.25);
+  width: 48px;
+  height: 48px;
+  font-size: 1.4rem;
+}
+
+.option-btn.option-a {
+  background: #e21b3c;
+  border-color: #e21b3c;
+  color: white;
+}
+
+.option-btn.option-b {
+  background: #1368ce;
+  border-color: #1368ce;
+  color: white;
+}
+
+.option-btn.option-c {
+  background: #d89e00;
+  border-color: #d89e00;
+  color: white;
+}
+
+.option-btn.option-d {
+  background: #26890c;
+  border-color: #26890c;
+  color: white;
+}
+
+.option-btn.option-a .option-letter,
+.option-btn.option-b .option-letter,
+.option-btn.option-c .option-letter,
+.option-btn.option-d .option-letter {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+#game-page.host-view .option-btn {
+  color: white;
+}
+
+.player-card.offline {
+  opacity: 0.55;
+  filter: grayscale(0.4);
+}
+
+.lobby-hint,
+.waiting-text {
+  color: #666;
+  margin-top: 12px;
+}
+
+.resume-box {
+  margin-top: 28px;
+  padding: 16px;
+  background: #f8fafb;
+  border-radius: 8px;
+  border: 1px dashed #ccc;
+}
+
+.resume-box p {
+  margin-bottom: 12px;
+  color: #555;
+}
+
+.btn-danger {
+  background: #c0392b;
+  color: white;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--secondary-color);
+  cursor: pointer;
+  margin-left: 12px;
+}
+
+/* ==================== 揭示畫面 ==================== */
+
+#reveal-page.active {
+  display: block;
+  min-height: 100vh;
+  padding: 20px 0 40px;
+}
+
+.reveal-container {
+  background: white;
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 32px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.reveal-question {
+  font-size: 1.25rem;
+  color: var(--dark-color);
+  margin: 12px 0 20px;
+}
+
+.reveal-accuracy {
+  margin-bottom: 24px;
+  color: #555;
+}
+
+.reveal-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.reveal-bar-row {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f4f6f8;
+  animation: barIn 0.45s ease-out;
+}
+
+@keyframes barIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal-bar-row.is-correct {
+  outline: 3px solid var(--success-color);
+  background: #e8f8ec;
+}
+
+.reveal-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.correct-badge {
+  color: var(--success-color);
+}
+
+.reveal-bar-track {
+  height: 14px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.reveal-bar-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  transition: width 0.6s ease-out;
+  background: #888;
+}
+
+.reveal-bar-row.option-a .reveal-bar-fill { background: #e21b3c; }
+.reveal-bar-row.option-b .reveal-bar-fill { background: #1368ce; }
+.reveal-bar-row.option-c .reveal-bar-fill { background: #d89e00; }
+.reveal-bar-row.option-d .reveal-bar-fill { background: #26890c; }
+
+.reveal-bar-meta {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.reveal-leaderboard {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.reveal-leaderboard h3 {
+  margin-bottom: 12px;
+}
+
+/* ==================== 線上編輯器 ==================== */
+
+.editor-container {
+  background: white;
+  max-width: 860px;
+  margin: 24px auto;
+  padding: 28px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.editor-question-card {
+  border: 2px solid var(--light-color);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 18px;
+  background: #fafbfc;
+}
+
+.editor-q-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.editor-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.editor-option-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.editor-option-row label {
+  font-size: 0.9rem;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  #game-page.player-view .options-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .editor-option-row {
+    grid-template-columns: 1fr;
+  }
+
+  .reveal-container,
+  .editor-container {
+    margin: 12px;
+    padding: 18px;
   }
 }

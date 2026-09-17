@@ -8,9 +8,7 @@
 
 **請求體：**
 ```json
-{
-  "hostName": "老師名稱"
-}
+{ "hostName": "老師名稱" }
 ```
 
 **回應：**
@@ -18,14 +16,13 @@
 {
   "success": true,
   "roomId": "ABC123",
+  "hostId": "host_ABC123",
+  "hostToken": "<密鑰，請妥善保存>",
   "message": "房間已創建: ABC123"
 }
 ```
 
-**狀態碼：**
-- `200` - 成功
-- `400` - 缺少主持人名稱
-- `500` - 伺服器錯誤
+主持人後續的 Socket 操作（上傳題目、開始、揭示、下一題）都必須帶上 `hostToken`。
 
 ---
 
@@ -35,10 +32,7 @@
 
 **請求體：**
 ```json
-{
-  "roomId": "ABC123",
-  "playerName": "玩家名稱"
-}
+{ "roomId": "ABC123", "playerName": "玩家名稱" }
 ```
 
 **回應：**
@@ -46,186 +40,84 @@
 {
   "success": true,
   "playerId": "player_uuid",
+  "reconnectToken": "<重連憑證>",
   "roomId": "ABC123",
   "message": "成功加入房間 ABC123"
 }
 ```
 
-**狀態碼：**
-- `200` - 成功
-- `400` - 房間已滿或缺少參數
-- `404` - 房間不存在
-- `500` - 伺服器錯誤
+遊戲開始後無法再加入（`joinLocked`）。
 
 ---
 
-### 獲取伺服器狀態
+### 重連
+
+**POST** `/api/room/reconnect`
+
+主持人：
+```json
+{ "roomId": "ABC123", "hostToken": "..." }
+```
+
+玩家：
+```json
+{ "roomId": "ABC123", "playerId": "...", "reconnectToken": "..." }
+```
+
+回傳目前 `state` 與 `resume`（可恢復 question / reveal / ended 畫面）。
+
+---
+
+### 伺服器狀態
 
 **GET** `/api/status`
 
-**回應：**
-```json
-{
-  "status": "online",
-  "activeRooms": 5,
-  "activePlayers": 32,
-  "timestamp": "2026-09-04T12:00:00.000Z"
-}
+---
+
+## 遊戲狀態機
+
 ```
+waiting → question → reveal → question → … → ended
+```
+
+- 伺服器在出題時記錄 `questionStartedAt`，分數依**伺服器時間**計算。
+- 倒數結束或全員作答 → 自動進入 `reveal`。
+- 主持人於 `reveal` 後按下一題；最後一題結束進入 `ended`。
 
 ---
 
 ## Socket.IO 事件
 
-### 客戶端發出
+### 客戶端 → 伺服器
 
-#### join-room
-加入房間
-```javascript
-socket.emit('join-room', {
-  roomId: 'ABC123',
-  playerId: 'player_uuid'
-});
-```
+| 事件 | 誰可送 | 說明 |
+|------|--------|------|
+| `join-room` | 雙方 | `{ roomId, playerId?, hostToken? }` |
+| `set-questions` | 主持人 | `{ roomId, hostToken, title?, questions }` |
+| `start-quiz` | 主持人 | `{ roomId, hostToken }` |
+| `submit-answer` | 玩家 | `{ roomId, playerId, answerIndex }`（勿傳 timeUsed） |
+| `reveal-question` | 主持人 | `{ roomId, hostToken }` |
+| `next-question` | 主持人 | `{ roomId, hostToken, questionIndex? }`；在 question 階段會先揭示 |
+| `request-room-state` | 雙方 | 取得最新狀態 |
 
-#### set-questions
-上傳問卷題目
-```javascript
-socket.emit('set-questions', {
-  roomId: 'ABC123',
-  questions: [...] // 題目陣列
-});
-```
+### 伺服器 → 客戶端
 
-#### start-quiz
-開始測驗
-```javascript
-socket.emit('start-quiz', {
-  roomId: 'ABC123'
-});
-```
-
-#### submit-answer
-提交答案
-```javascript
-socket.emit('submit-answer', {
-  roomId: 'ABC123',
-  playerId: 'player_uuid',
-  answerIndex: 2,
-  timeUsed: 15
-});
-```
-
-#### next-question
-進入下一題
-```javascript
-socket.emit('next-question', {
-  roomId: 'ABC123'
-});
-```
+| 事件 | 說明 |
+|------|------|
+| `room-state` / `lobby-update` | Lobby 同步（完整玩家列表） |
+| `quiz-ready` | 問卷已上傳 |
+| `question-display` | 出題（含 `totalQuestions`、`timeLimit`、`startedAt`） |
+| `answer-submitted` | 個人作答結果 |
+| `answer-progress` | 已作答人數 |
+| `leaderboard-data` | 排行榜 |
+| `question-reveal` | 揭示正確答案與選項分佈統計 |
+| `quiz-ended` | `{ leaderboard, summary }`（含真實時長） |
+| `error` | 錯誤訊息 |
 
 ---
 
-### 伺服器發出
+## 計分（伺服器）
 
-#### player-joined
-玩家加入事件
-```javascript
-socket.on('player-joined', (data) => {
-  console.log(data.playerName + ' 加入了房間');
-  // {
-  //   playerId: 'player_uuid',
-  //   playerName: '小明',
-  //   totalPlayers: 5
-  // }
-});
-```
-
-#### quiz-ready
-問卷準備完畢
-```javascript
-socket.on('quiz-ready', (data) => {
-  // {
-  //   success: true,
-  //   totalQuestions: 10,
-  //   message: '問卷已上傳，可以開始遊戲'
-  // }
-});
-```
-
-#### question-display
-顯示題目
-```javascript
-socket.on('question-display', (data) => {
-  // {
-  //   questionNumber: 1,
-  //   question: '題目文字',
-  //   options: ['A', 'B', 'C', 'D'],
-  //   timeLimit: 30
-  // }
-});
-```
-
-#### answer-submitted
-答案已提交
-```javascript
-socket.on('answer-submitted', (data) => {
-  // {
-  //   correct: true,
-  //   correctAnswer: 2,
-  //   points: 950,
-  //   explanation: '恭喜答對！'
-  // }
-});
-```
-
-#### leaderboard-data
-排分板更新
-```javascript
-socket.on('leaderboard-data', (data) => {
-  // {
-  //   leaderboard: [
-  //     { rank: 1, name: '小明', score: 5000, accuracy: 90 },
-  //     { rank: 2, name: '小紅', score: 4500, accuracy: 85 }
-  //   ]
-  // }
-});
-```
-
-#### quiz-ended
-測驗結束
-```javascript
-socket.on('quiz-ended', (data) => {
-  // {
-  //   leaderboard: [...],
-  //   summary: { ... }
-  // }
-});
-```
-
-#### error
-錯誤事件
-```javascript
-socket.on('error', (error) => {
-  console.error(error.message);
-});
-```
-
----
-
-## 錯誤代碼
-
-| 代碼 | 意義 | 說明 |
-|------|------|------|
-| 400 | Bad Request | 請求參數無效 |
-| 404 | Not Found | 資源不存在 |
-| 500 | Server Error | 伺服器內部錯誤 |
-
----
-
-## 認證
-
-目前版本不需要認證。生產環境建議添加：
-- JWT 令牌認證
-- 房間密碼保護
-- 管理員權限控制
+- 答錯或未作答：0
+- 答對：`1000 - timeUsed×10`，最低 0
+- 在 30% 時間內答對：+50
