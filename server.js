@@ -34,10 +34,6 @@ const players = new Map();
 const playerSockets = new Map();
 /** roomId → NodeJS.Timeout — 伺服器端題目倒數 */
 const questionTimers = new Map();
-/** 斷線玩家延遲清除 */
-const disconnectTimeouts = new Map();
-
-const DISCONNECT_GRACE_MS = 60_000;
 
 // ==================== REST ====================
 
@@ -184,11 +180,6 @@ app.post('/api/room/reconnect', (req, res) => {
       return res.status(401).json({ success: false, message: '重連憑證無效' });
     }
 
-    if (disconnectTimeouts.has(playerId)) {
-      clearTimeout(disconnectTimeouts.get(playerId));
-      disconnectTimeouts.delete(playerId);
-    }
-
     return res.json({
       success: true,
       role: 'player',
@@ -249,11 +240,6 @@ io.on('connection', (socket) => {
     if (!player || player.roomId !== room.id) {
       socket.emit('error', { message: '玩家無效' });
       return;
-    }
-
-    if (disconnectTimeouts.has(playerId)) {
-      clearTimeout(disconnectTimeouts.get(playerId));
-      disconnectTimeouts.delete(playerId);
     }
 
     player.markConnected(socket.id);
@@ -420,60 +406,107 @@ io.on('connection', (socket) => {
     });
   });
 
+  // 玩家主動離開：立刻移除並清掉連線對應
+  socket.on('leave-room', (data) => {
+    if (socket.data.role === 'host') {
+      const roomId = socket.data.roomId;
+      if (roomId) {
+        socket.leave(roomId);
+        playerSockets.delete(`host_${roomId}`);
+      }
+      socket.data.role = null;
+      socket.data.roomId = null;
+      socket.data.hostToken = null;
+      socket.emit('left-room', { success: true, role: 'host' });
+      console.log(`[主持人] 已離開房間 ${roomId || ''}`);
+      return;
+    }
+
+    const playerId = (data && data.playerId) || socket.data.playerId;
+    removePlayerCompletely(playerId, socket, 'leave');
+    socket.emit('left-room', { success: true, role: 'player' });
+  });
+
   socket.on('disconnect', () => {
     console.log(`[Socket] 斷開: ${socket.id}`);
 
     if (socket.data.role === 'host' && socket.data.roomId) {
-      // 主持人不立即銷毀房間，允許重連
+      // 主持人不銷毀房間，只清掉 socket 對應，允許稍後重連主持
+      playerSockets.delete(`host_${socket.data.roomId}`);
       return;
     }
 
     const playerId = socket.data.playerId;
     if (!playerId) return;
-
-    const player = players.get(playerId);
-    if (!player) return;
-
-    player.markDisconnected();
-    playerSockets.delete(playerId);
-
-    const room = rooms.get(player.roomId);
-    if (room) {
-      broadcastLobby(room);
-    }
-
-    // 寬限時間後再移除（等待中）或保留分數（進行中僅標記離線）
-    if (disconnectTimeouts.has(playerId)) {
-      clearTimeout(disconnectTimeouts.get(playerId));
-    }
-
-    disconnectTimeouts.set(playerId, setTimeout(() => {
-      disconnectTimeouts.delete(playerId);
-      const p = players.get(playerId);
-      if (!p || p.connected) return;
-
-      const r = rooms.get(p.roomId);
-      if (!r) {
-        players.delete(playerId);
-        return;
-      }
-
-      if (r.status === 'waiting') {
-        r.removePlayer(playerId);
-        players.delete(playerId);
-        io.to(r.id).emit('player-left', {
-          playerName: p.name,
-          remainingPlayers: r.getPlayerCount()
-        });
-        broadcastLobby(r);
-        console.log(`[玩家] ${p.name} 逾時未重連，已移除`);
-      }
-      // 進行中／結束：保留玩家資料供排行榜
-    }, DISCONNECT_GRACE_MS));
+    removePlayerCompletely(playerId, socket, 'disconnect');
   });
 });
 
 // ==================== 遊戲流程輔助 ====================
+
+/**
+ * 立刻把玩家移出房間並刪除連線對應（主動離開或斷線都走這裡）
+ */
+function removePlayerCompletely(playerId, socket, reason = 'leave') {
+  if (!playerId) return false;
+
+  const player = players.get(playerId);
+  if (!player) {
+    playerSockets.delete(playerId);
+    if (socket) {
+      socket.data.playerId = null;
+      socket.data.role = null;
+      socket.data.roomId = null;
+    }
+    return false;
+  }
+
+  const room = rooms.get(player.roomId);
+  const playerName = player.name;
+
+  if (socket) {
+    try {
+      socket.leave(player.roomId);
+    } catch (_) {
+      // ignore
+    }
+    socket.data.playerId = null;
+    socket.data.role = null;
+    socket.data.roomId = null;
+  } else {
+    // 若是由其他路徑觸發，仍嘗試找到既有 socket 並離開房間
+    const sid = playerSockets.get(playerId);
+    if (sid) {
+      const s = io.sockets.sockets.get(sid);
+      if (s) {
+        try { s.leave(player.roomId); } catch (_) { /* ignore */ }
+        s.data.playerId = null;
+        s.data.role = null;
+        s.data.roomId = null;
+      }
+    }
+  }
+
+  playerSockets.delete(playerId);
+  players.delete(playerId);
+
+  if (room) {
+    room.removePlayer(playerId);
+    io.to(room.id).emit('player-left', {
+      playerId,
+      playerName,
+      remainingPlayers: room.getPlayerCount(),
+      reason
+    });
+    broadcastLobby(room);
+    emitAnswerProgress(room);
+    console.log(`[玩家] ${playerName} 已離開並清除連線 (${reason})`);
+  } else {
+    console.log(`[玩家] ${playerName} 已清除連線 (${reason})`);
+  }
+
+  return true;
+}
 
 function requireHost(socket, data) {
   const roomId = String((data && data.roomId) || socket.data.roomId || '').toUpperCase();

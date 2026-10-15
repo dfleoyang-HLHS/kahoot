@@ -162,6 +162,44 @@ async function main() {
   if (!recon.success || recon.role !== 'host') throw new Error('host reconnect failed');
   console.log('✓ host reconnect');
 
+  // 離開房間應立刻刪除玩家連線
+  const leaveRoom = await post('/api/room/create', { hostName: 'LeaveHost' });
+  const leaver = await post('/api/room/join', {
+    roomId: leaveRoom.roomId,
+    playerName: 'Leaver',
+    avatarId: avatars.avatars[2].id
+  });
+  const leaveSocket = io(BASE, { transports: ['websocket'] });
+  await once(leaveSocket, 'connect');
+  leaveSocket.emit('join-room', { roomId: leaveRoom.roomId, playerId: leaver.playerId });
+  await once(leaveSocket, 'room-state');
+
+  const leftP = once(leaveSocket, 'left-room');
+  const lobbyAfterLeave = once(host, 'lobby-update').catch(() => null);
+  // 用獨立 host socket 聽 leaveRoom
+  const leaveHost = io(BASE, { transports: ['websocket'] });
+  await once(leaveHost, 'connect');
+  leaveHost.emit('join-room', {
+    roomId: leaveRoom.roomId,
+    playerId: leaveRoom.hostId,
+    hostToken: leaveRoom.hostToken
+  });
+  await once(leaveHost, 'room-state');
+  const playerLeftP = once(leaveHost, 'player-left');
+  leaveSocket.emit('leave-room', { roomId: leaveRoom.roomId, playerId: leaver.playerId });
+  await leftP;
+  const leftEvt = await playerLeftP;
+  if (leftEvt.playerName !== 'Leaver') throw new Error('player-left missing');
+  const preview = await (await fetch(`${BASE}/api/room/${leaveRoom.roomId}/preview`)).json();
+  if (preview.playerCount !== 0) throw new Error('player not removed after leave');
+  if ((preview.usedAvatarIds || []).includes(leaver.avatar.id)) {
+    throw new Error('avatar still taken after leave');
+  }
+  console.log('✓ leave removes player connection');
+  leaveSocket.close();
+  leaveHost.close();
+  void lobbyAfterLeave;
+
   host.close();
   player.close();
   console.log('\nALL SMOKE CHECKS PASSED');
