@@ -14,6 +14,7 @@ const uuid = require('uuid');
 const GameRoom = require('./models/GameRoom');
 const Player = require('./models/Player');
 const GameLogic = require('./gameLogic');
+const { listAvatars, pickAvatar, getAvatarById } = require('./models/avatars');
 
 const app = express();
 const server = http.createServer(app);
@@ -70,9 +71,34 @@ app.post('/api/room/create', (req, res) => {
   }
 });
 
+app.get('/api/avatars', (req, res) => {
+  res.json({ success: true, avatars: listAvatars() });
+});
+
+app.get('/api/room/:roomId/preview', (req, res) => {
+  const room = rooms.get(String(req.params.roomId || '').toUpperCase());
+  if (!room) {
+    return res.status(404).json({ success: false, message: '房間不存在' });
+  }
+  const roomPlayers = getRoomPlayers(room);
+  const usedAvatarIds = roomPlayers.map(p => p.avatar && p.avatar.id).filter(Boolean);
+  res.json({
+    success: true,
+    roomId: room.id,
+    status: room.status,
+    joinLocked: room.joinLocked,
+    playerCount: room.getPlayerCount(),
+    usedAvatarIds,
+    avatars: listAvatars().map(a => ({
+      ...a,
+      taken: usedAvatarIds.includes(a.id)
+    }))
+  });
+});
+
 app.post('/api/room/join', (req, res) => {
   try {
-    const { roomId, playerName } = req.body;
+    const { roomId, playerName, avatarId } = req.body;
 
     if (!roomId || !playerName) {
       return res.status(400).json({ success: false, message: '缺少必要信息' });
@@ -96,15 +122,20 @@ app.post('/api/room/join', (req, res) => {
       return res.status(400).json({ success: false, message: '房間已滿' });
     }
 
-    const duplicate = getRoomPlayers(room).some(
+    const roomPlayers = getRoomPlayers(room);
+    const duplicate = roomPlayers.some(
       p => p.name.toLowerCase() === name.toLowerCase()
     );
     if (duplicate) {
       return res.status(400).json({ success: false, message: '此暱稱已被使用' });
     }
 
+    const usedAvatarIds = roomPlayers.map(p => p.avatar && p.avatar.id).filter(Boolean);
+    const preferred = avatarId && getAvatarById(avatarId) ? avatarId : null;
+    const avatar = pickAvatar(usedAvatarIds, preferred);
+
     const playerId = `player_${uuid.v4()}`;
-    const player = new Player(playerId, name, room.id);
+    const player = new Player(playerId, name, room.id, avatar);
     players.set(playerId, player);
 
     if (!room.addPlayer(playerId)) {
@@ -112,13 +143,14 @@ app.post('/api/room/join', (req, res) => {
       return res.status(400).json({ success: false, message: '無法加入房間' });
     }
 
-    console.log(`[玩家] ${name} 加入 ${room.id}`);
+    console.log(`[玩家] ${name} (${avatar.emoji}) 加入 ${room.id}`);
 
     res.json({
       success: true,
       playerId,
       reconnectToken: player.reconnectToken,
       roomId: room.id,
+      avatar: player.avatar,
       message: `成功加入房間 ${room.id}`
     });
   } catch (error) {
@@ -164,6 +196,7 @@ app.post('/api/room/reconnect', (req, res) => {
       playerId: player.id,
       reconnectToken: player.reconnectToken,
       playerName: player.name,
+      avatar: player.avatar,
       score: player.score,
       state: room.toPublicState(getRoomPlayers(room)),
       resume: buildResumePayload(room, player)

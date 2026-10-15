@@ -6,10 +6,11 @@
 const crypto = require('crypto');
 
 class Player {
-  constructor(id, name, roomId) {
+  constructor(id, name, roomId, avatar = null) {
     this.id = id;
     this.name = name;
     this.roomId = roomId;
+    this.avatar = avatar || { id: 'star', emoji: '⭐', color: '#ffe082', label: '星星' };
     this.score = 0;
     this.answered = false;
     this.answers = [];
@@ -77,6 +78,7 @@ class Player {
       id: this.id,
       name: this.name,
       roomId: this.roomId,
+      avatar: this.avatar,
       score: this.score,
       answered: this.answered,
       connected: this.connected,

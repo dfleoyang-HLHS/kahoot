@@ -156,6 +156,7 @@ class GameRoom {
       players: playerList.map(p => ({
         id: p.id,
         name: p.name,
+        avatar: p.avatar || null,
         score: p.score,
         answered: p.answered,
         connected: p.connected

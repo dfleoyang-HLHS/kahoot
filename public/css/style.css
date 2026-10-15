@@ -279,12 +279,18 @@ body {
 }
 
 .player-card {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  background: linear-gradient(135deg, var(--card-avatar-color, var(--primary-color)), var(--secondary-color));
   color: white;
   padding: 15px;
   border-radius: 8px;
   text-align: center;
   animation: slideIn 0.3s ease-out;
+}
+
+.player-card-avatar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
 }
 
 @keyframes slideIn {
@@ -482,6 +488,16 @@ body {
 
 .mini-player .name {
   flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.mini-player .avatar-name-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1024,6 +1040,82 @@ body.is-player .host-only {
 
 .reveal-leaderboard h3 {
   margin-bottom: 12px;
+}
+
+/* ==================== 玩家頭像 ==================== */
+
+.avatar-hint {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.avatar-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+  gap: 10px;
+}
+
+.avatar-choice {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 3px solid transparent;
+  border-radius: 14px;
+  background: var(--avatar-color, #eee);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.avatar-choice:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
+
+.avatar-choice.selected {
+  border-color: var(--dark-color);
+  box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.2);
+}
+
+.avatar-choice.taken,
+.avatar-choice:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  filter: grayscale(0.7);
+}
+
+.avatar-choice-emoji {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.avatar-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.8em;
+  height: 1.8em;
+  border-radius: 50%;
+  background: var(--avatar-color, #ffe082);
+  font-size: 1.1rem;
+  line-height: 1;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+.avatar-badge.avatar-sm {
+  width: 1.55em;
+  height: 1.55em;
+  font-size: 0.95rem;
+}
+
+.avatar-badge.avatar-lg {
+  width: 2.6em;
+  height: 2.6em;
+  font-size: 1.55rem;
 }
 
 /* ==================== 線上編輯器 ==================== */

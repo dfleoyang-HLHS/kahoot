@@ -33,8 +33,37 @@ async function main() {
   const { roomId, hostToken, hostId } = created;
   console.log('room', roomId);
 
-  const joined = await post('/api/room/join', { roomId, playerName: 'Alice' });
+  const avatars = await (await fetch(`${BASE}/api/avatars`)).json();
+  if (!avatars.success || !avatars.avatars?.length) throw new Error('avatars api failed');
+
+  // 用另一間房測頭像不重複，避免影響主流程人數
+  const uniqRoom = await post('/api/room/create', { hostName: 'AvatarHost' });
+  const a1 = await post('/api/room/join', {
+    roomId: uniqRoom.roomId,
+    playerName: 'A1',
+    avatarId: avatars.avatars[0].id
+  });
+  const a2 = await post('/api/room/join', {
+    roomId: uniqRoom.roomId,
+    playerName: 'A2',
+    avatarId: avatars.avatars[0].id
+  });
+  if (!a1.avatar || a1.avatar.id !== avatars.avatars[0].id) {
+    throw new Error('avatar not assigned: ' + JSON.stringify(a1.avatar));
+  }
+  if (!a2.avatar || a2.avatar.id === a1.avatar.id) {
+    throw new Error('avatar uniqueness failed');
+  }
+  console.log('✓ avatar assigned/unique', a1.avatar.emoji, a2.avatar.emoji);
+
+  const joined = await post('/api/room/join', {
+    roomId,
+    playerName: 'Alice',
+    avatarId: avatars.avatars[1].id
+  });
   if (!joined.success) throw new Error('join failed: ' + joined.message);
+  if (!joined.avatar) throw new Error('missing avatar on join');
+  console.log('✓ join with avatar', joined.avatar.emoji);
 
   const host = io(BASE, { transports: ['websocket'] });
   const player = io(BASE, { transports: ['websocket'] });
