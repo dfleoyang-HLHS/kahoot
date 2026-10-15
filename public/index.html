@@ -65,6 +65,12 @@
                     <label for="player-name">您的名稱:</label>
                     <input type="text" id="player-name" placeholder="例如：小明" maxlength="24" required>
                 </div>
+                <div class="form-group">
+                    <label>選擇頭像:</label>
+                    <p class="avatar-hint">每個人選一個不同圖像；已被選走的會顯示為占用</p>
+                    <div id="avatar-picker" class="avatar-picker" aria-label="頭像選擇"></div>
+                    <input type="hidden" id="selected-avatar-id" value="">
+                </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">加入遊戲</button>
                     <button type="button" class="btn btn-secondary" onclick="showHomePage()">返回</button>
@@ -263,6 +269,7 @@
                     <thead>
                         <tr>
                             <th>排名</th>
+                            <th>頭像</th>
                             <th>玩家</th>
                             <th>得分</th>
                             <th>準確率</th>

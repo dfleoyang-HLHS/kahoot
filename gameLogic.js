@@ -40,6 +40,7 @@ class GameLogic {
         rank: 0,
         id: player.id,
         name: player.name,
+        avatar: player.avatar || null,
         score: player.score,
         correctAnswers: player.answers.filter(a => a.isCorrect).length,
         totalAnswers: player.answers.length,

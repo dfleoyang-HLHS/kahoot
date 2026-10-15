@@ -12,6 +12,10 @@ let hostToken = null;
 let reconnectToken = null;
 let isHost = false;
 let playerName = '';
+let playerAvatar = null;
+let avatarCatalog = [];
+let selectedAvatarId = '';
+let avatarPreviewTimer = null;
 
 let gameState = {
   questions: [],
@@ -26,6 +30,17 @@ let gameState = {
 
 let gameTimer = null;
 let timerEndsAt = 0;
+
+function avatarBadge(avatar, sizeClass = '') {
+  const emoji = (avatar && avatar.emoji) || '⭐';
+  const color = (avatar && avatar.color) || '#ffe082';
+  const label = (avatar && avatar.label) || '頭像';
+  return `<span class="avatar-badge ${sizeClass}" style="--avatar-color:${color}" title="${escapeAttr(label)}" aria-hidden="true">${emoji}</span>`;
+}
+
+function avatarNameHtml(player) {
+  return `${avatarBadge(player.avatar, 'avatar-sm')} <span class="avatar-name-text">${escapeHtml(player.name)}</span>`;
+}
 
 // ==================== Session ====================
 
@@ -98,6 +113,7 @@ async function tryResumeSession() {
       currentPlayerId = data.playerId;
       reconnectToken = data.reconnectToken;
       playerName = data.playerName;
+      playerAvatar = data.avatar || null;
       gameState.score = data.score || 0;
     }
 
@@ -194,6 +210,7 @@ function showCreateRoom() {
 
 function showJoinRoom() {
   showPage('join-room-page');
+  ensureAvatarPicker();
 }
 
 function showUploadQuiz() {
@@ -285,12 +302,13 @@ document.getElementById('join-room-form')?.addEventListener('submit', async (e) 
   e.preventDefault();
   const roomId = document.getElementById('room-id').value.trim().toUpperCase();
   const name = document.getElementById('player-name').value.trim();
+  const avatarId = document.getElementById('selected-avatar-id').value || selectedAvatarId;
 
   try {
     const response = await fetch('/api/room/join', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ roomId, playerName: name })
+      body: JSON.stringify({ roomId, playerName: name, avatarId })
     });
     const data = await response.json();
     if (!data.success) {
@@ -304,6 +322,7 @@ document.getElementById('join-room-form')?.addEventListener('submit', async (e) 
     isHost = false;
     hostToken = null;
     playerName = name;
+    playerAvatar = data.avatar || null;
     saveSession();
 
     socket.emit('join-room', {
@@ -316,11 +335,99 @@ document.getElementById('join-room-form')?.addEventListener('submit', async (e) 
     updateLobbyRoleUI();
     showPage('room-code-page');
     e.target.reset();
+    selectedAvatarId = '';
+    document.getElementById('selected-avatar-id').value = '';
   } catch (error) {
     console.error(error);
     alert('加入房間失敗，請檢查房間代碼');
   }
 });
+
+document.getElementById('room-id')?.addEventListener('input', () => {
+  clearTimeout(avatarPreviewTimer);
+  avatarPreviewTimer = setTimeout(() => {
+    const code = document.getElementById('room-id').value.trim().toUpperCase();
+    if (code.length >= 4) {
+      refreshAvatarAvailability(code);
+    } else {
+      renderAvatarPicker([]);
+    }
+  }, 300);
+});
+
+async function ensureAvatarPicker() {
+  if (avatarCatalog.length === 0) {
+    try {
+      const res = await fetch('/api/avatars');
+      const data = await res.json();
+      if (data.success) {
+        avatarCatalog = data.avatars || [];
+      }
+    } catch (err) {
+      console.error('載入頭像失敗', err);
+    }
+  }
+  if (!selectedAvatarId && avatarCatalog.length > 0) {
+    selectedAvatarId = avatarCatalog[Math.floor(Math.random() * avatarCatalog.length)].id;
+    document.getElementById('selected-avatar-id').value = selectedAvatarId;
+  }
+  renderAvatarPicker([]);
+  const code = document.getElementById('room-id')?.value.trim().toUpperCase();
+  if (code && code.length >= 4) {
+    refreshAvatarAvailability(code);
+  }
+}
+
+async function refreshAvatarAvailability(roomId) {
+  try {
+    const res = await fetch(`/api/room/${encodeURIComponent(roomId)}/preview`);
+    if (!res.ok) {
+      renderAvatarPicker([]);
+      return;
+    }
+    const data = await res.json();
+    if (data.success) {
+      avatarCatalog = data.avatars.map(({ taken, ...rest }) => rest);
+      renderAvatarPicker(data.usedAvatarIds || []);
+    }
+  } catch {
+    renderAvatarPicker([]);
+  }
+}
+
+function renderAvatarPicker(usedAvatarIds) {
+  const root = document.getElementById('avatar-picker');
+  if (!root) return;
+  const used = new Set(usedAvatarIds || []);
+
+  if (selectedAvatarId && used.has(selectedAvatarId)) {
+    const fallback = avatarCatalog.find(a => !used.has(a.id));
+    selectedAvatarId = fallback ? fallback.id : '';
+    document.getElementById('selected-avatar-id').value = selectedAvatarId;
+  }
+
+  root.innerHTML = '';
+  avatarCatalog.forEach(avatar => {
+    const taken = used.has(avatar.id);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'avatar-choice' +
+      (selectedAvatarId === avatar.id ? ' selected' : '') +
+      (taken ? ' taken' : '');
+    btn.style.setProperty('--avatar-color', avatar.color);
+    btn.disabled = taken;
+    btn.title = taken ? `${avatar.label}（已被選走）` : avatar.label;
+    btn.setAttribute('aria-label', avatar.label);
+    btn.innerHTML = `<span class="avatar-choice-emoji">${avatar.emoji}</span>`;
+    btn.addEventListener('click', () => {
+      if (taken) return;
+      selectedAvatarId = avatar.id;
+      document.getElementById('selected-avatar-id').value = avatar.id;
+      renderAvatarPicker([...used]);
+    });
+    root.appendChild(btn);
+  });
+}
 
 function copyRoomCode() {
   const roomCode = document.getElementById('room-code-display').textContent;
@@ -337,7 +444,12 @@ function renderLobbyFromState(state) {
   (state.players || []).forEach(p => {
     const card = document.createElement('div');
     card.className = 'player-card' + (p.connected === false ? ' offline' : '');
-    card.innerHTML = `<p>👤 ${escapeHtml(p.name)}${p.connected === false ? ' (離線)' : ''}</p>`;
+    const color = (p.avatar && p.avatar.color) || '#ff6b6b';
+    card.style.setProperty('--card-avatar-color', color);
+    card.innerHTML = `
+      <div class="player-card-avatar">${avatarBadge(p.avatar, 'avatar-lg')}</div>
+      <p>${escapeHtml(p.name)}${p.connected === false ? ' (離線)' : ''}</p>
+    `;
     container.appendChild(card);
   });
 
@@ -769,7 +881,7 @@ function displayReveal(data) {
     item.className = 'mini-player';
     item.innerHTML = `
       <span class="rank">#${p.rank}</span>
-      <span class="name">${escapeHtml(p.name)}</span>
+      <span class="name">${avatarNameHtml(p)}</span>
       <span class="score">${p.score}</span>
     `;
     lb.appendChild(item);
@@ -801,7 +913,7 @@ function displayLeaderboard(leaderboard) {
     item.className = 'mini-player';
     item.innerHTML = `
       <span class="rank">#${player.rank}</span>
-      <span class="name">${escapeHtml(player.name)}</span>
+      <span class="name">${avatarNameHtml(player)}</span>
       <span class="score">${player.score}</span>
     `;
     container.appendChild(item);
@@ -818,6 +930,7 @@ function displayFinalResults(leaderboard, gameSummary) {
     const row = document.createElement('tr');
     row.innerHTML = `
       <td class="leaderboard-rank">${player.rank}</td>
+      <td>${avatarBadge(player.avatar)}</td>
       <td>${escapeHtml(player.name)}</td>
       <td><strong>${player.score}</strong></td>
       <td>${player.accuracy}%</td>
@@ -853,6 +966,7 @@ function resetGameState(clearStorage = false) {
   reconnectToken = null;
   isHost = false;
   playerName = '';
+  playerAvatar = null;
   clearInterval(gameTimer);
   hideGlobalRoomCodeBar();
   if (clearStorage) clearSession();
@@ -948,4 +1062,11 @@ function escapeAttr(str) {
 document.addEventListener('DOMContentLoaded', () => {
   showPage('home-page');
   checkResumeBanner();
+  // 預載頭像清單，加入頁開啟時更快
+  fetch('/api/avatars')
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) avatarCatalog = data.avatars || [];
+    })
+    .catch(() => {});
 });
