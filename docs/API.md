@@ -99,6 +99,7 @@ waiting → question → reveal → question → … → ended
 | `reveal-question` | 主持人 | `{ roomId, hostToken }` |
 | `next-question` | 主持人 | `{ roomId, hostToken, questionIndex? }`；在 question 階段會先揭示 |
 | `request-room-state` | 雙方 | 取得最新狀態 |
+| `leave-room` | 雙方 | `{ roomId, playerId? }`；玩家會立刻從房間移除並清除連線 |
 
 ### 伺服器 → 客戶端
 
@@ -112,7 +113,11 @@ waiting → question → reveal → question → … → ended
 | `leaderboard-data` | 排行榜 |
 | `question-reveal` | 揭示正確答案與選項分佈統計 |
 | `quiz-ended` | `{ leaderboard, summary }`（含真實時長） |
+| `player-left` | 玩家已離開並清除連線 |
+| `left-room` | 確認自己已離開 |
 | `error` | 錯誤訊息 |
+
+玩家斷線時同樣會立刻移除並釋放頭像（不再保留 60 秒離線狀態）。
 
 ---
 

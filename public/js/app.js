@@ -231,6 +231,14 @@ function goBackToRoom() {
 }
 
 function leaveToHome() {
+  // 通知伺服器立刻移除玩家／清除連線，再回到首頁
+  if (currentRoomId) {
+    socket.emit('leave-room', {
+      roomId: currentRoomId,
+      playerId: currentPlayerId,
+      hostToken: isHost ? hostToken : undefined
+    });
+  }
   resetGameState(true);
   showHomePage();
 }
@@ -993,7 +1001,16 @@ socket.on('player-joined', () => {
   // lobby-update 會刷新完整列表
 });
 
-socket.on('player-left', () => {});
+socket.on('player-left', (data) => {
+  // lobby-update 會刷新列表；這裡僅提示主持人
+  if (isHost && data && data.playerName) {
+    console.log(`玩家離開: ${data.playerName}`);
+  }
+});
+
+socket.on('left-room', () => {
+  // 伺服器已確認清除連線
+});
 
 socket.on('quiz-ready', (data) => {
   gameState.totalQuestions = data.totalQuestions;
