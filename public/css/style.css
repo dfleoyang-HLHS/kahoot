@@ -20,12 +20,44 @@
   --transition: all 0.3s ease;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-attachment: fixed;
   color: var(--text-color);
   line-height: 1.6;
   min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* PWA 全螢幕（standalone）時略調頂部 */
+html.pwa-standalone body {
+  min-height: 100dvh;
+}
+
+.app-icon-hero {
+  display: block;
+  margin: 0 auto 12px;
+  border-radius: 22%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+.mobile-hint {
+  display: none;
+  color: #777;
+  font-size: 0.9rem;
+  margin: -20px 0 24px;
 }
 
 /* ==================== 房間代碼固定顯示列 ==================== */
@@ -40,6 +72,7 @@ body {
   color: white;
   text-align: center;
   padding: 10px 16px;
+  padding-top: max(10px, env(safe-area-inset-top));
   font-size: 1.3rem;
   font-weight: bold;
   letter-spacing: 2px;
@@ -740,15 +773,20 @@ body {
   text-align: center;
 }
 
-/* ==================== 響應式設計 ==================== */
+/* ==================== 響應式設計／手機優化 ==================== */
 
 @media (max-width: 768px) {
+  .mobile-hint {
+    display: block;
+  }
+
   .game-container {
     grid-template-columns: 1fr;
   }
 
   .options-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
   }
 
   .leaderboard-mini {
@@ -765,7 +803,7 @@ body {
   }
 
   .logo {
-    font-size: 3rem;
+    font-size: 2.6rem;
   }
 
   .room-code {
@@ -776,12 +814,77 @@ body {
     flex-direction: column;
   }
 
-  .form-actions button {
+  .form-actions button,
+  .form-actions a {
     max-width: 100%;
+    min-height: 48px;
+  }
+
+  .btn-large {
+    min-height: 54px;
+    width: 100%;
   }
 
   .players-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  /* iOS 避免 focus 自動放大 */
+  .form-group input,
+  .form-group textarea,
+  .form-group select,
+  .editor-q-text,
+  .editor-opt,
+  .editor-time {
+    font-size: 16px;
+  }
+
+  #home-page .container,
+  .form,
+  .room-info-card,
+  .players-list,
+  .reveal-container,
+  .editor-container,
+  #final-page .container {
+    margin-left: 12px;
+    margin-right: 12px;
+    width: auto;
+    max-width: calc(100% - 24px);
+  }
+
+  #game-page.active {
+    padding: 12px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  .game-header {
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    font-size: 1rem;
+  }
+
+  #game-page.player-view .options-grid {
+    grid-template-columns: 1fr 1fr;
+    min-height: 55dvh;
+    gap: 10px;
+  }
+
+  #game-page.player-view .option-btn {
+    min-height: 22dvh;
+    border-radius: 16px;
+    font-size: 1.05rem;
+    touch-action: manipulation;
+  }
+
+  .avatar-choice {
+    min-height: 52px;
+    touch-action: manipulation;
+  }
+
+  .pwa-install-banner {
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
   }
 }
 
@@ -795,29 +898,90 @@ body {
   }
 
   .question-card {
-    padding: 20px;
+    padding: 16px;
   }
 
   .question-card h2 {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
   }
 
   .option-btn {
-    flex-direction: column;
     text-align: center;
-    padding: 15px;
+    padding: 14px 10px;
   }
 
   .logo {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
   }
 
   .room-code {
-    font-size: 1.5rem;
+    font-size: 1.7rem;
+    letter-spacing: 3px;
   }
 
   #final-page h1 {
     font-size: 1.8rem;
+  }
+
+  .global-room-code-bar {
+    font-size: 1.05rem;
+  }
+}
+
+/* ==================== PWA 安裝橫幅 ==================== */
+
+.pwa-install-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2000;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.15);
+  padding: 12px 16px;
+  animation: slideUpBanner 0.35s ease-out;
+}
+
+@keyframes slideUpBanner {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.pwa-install-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pwa-install-inner strong {
+  color: var(--dark-color);
+  display: block;
+}
+
+.pwa-install-inner p {
+  margin: 2px 0 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.pwa-install-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .pwa-install-inner {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .pwa-install-actions {
+    justify-content: center;
   }
 }
 

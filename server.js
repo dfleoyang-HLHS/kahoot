@@ -26,7 +26,18 @@ const io = socketIo(server, {
 });
 
 app.use(express.json({ limit: '1mb' }));
-app.use(express.static('public'));
+express.static.mime.define({ 'application/manifest+json': ['webmanifest'] });
+app.use(express.static('public', {
+  setHeaders(res, filePath) {
+    if (filePath.endsWith('sw.js')) {
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Service-Worker-Allowed', '/');
+    }
+    if (filePath.endsWith('.webmanifest')) {
+      res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
+    }
+  }
+}));
 app.use('/docs', express.static('docs'));
 
 const rooms = new Map();
